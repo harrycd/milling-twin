@@ -2,6 +2,7 @@ package uk.ac.cf.twin.milling.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -11,9 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import uk.ac.cf.milling.objects.Billet;
 import uk.ac.cf.milling.objects.Nc;
 import uk.ac.cf.milling.objects.SettingsSingleton;
-import uk.ac.cf.milling.utils.BilletUtils;
-import uk.ac.cf.milling.utils.MonitoringUtils;
-import uk.ac.cf.milling.utils.NcUtils;
+import uk.ac.cf.milling.utils.data.IoUtils;
+import uk.ac.cf.milling.utils.db.BilletUtils;
+import uk.ac.cf.milling.utils.db.NcUtils;
+import uk.ac.cf.milling.utils.webapp.MonitoringUtils;
 
 /**
  * Servlet implementation class TwinMain
@@ -24,6 +26,7 @@ public class ServletMain extends HttpServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private String dbFolderPath = "C:\\Users\\Alexo\\OneDrive\\PhD - Work\\Eclipse 2018-09\\milling-vm";
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -35,11 +38,12 @@ public class ServletMain extends HttpServlet {
 		if (action == null || action.equals("")) return;
 
 		switch(action) {
-		case "login" : {
-			String dbFilePath = request.getParameter("dbFilePath");
+		case "load-database" : {
+			String dbFile = request.getParameter("db-name");
 			SettingsSingleton instance = SettingsSingleton.getInstance();
-			instance.dbFilePath = dbFilePath;
-			System.out.println("selected database: " + dbFilePath);
+			instance.dbFilePath = dbFolderPath + "\\" + dbFile;
+			System.out.println("selected database: " + instance.dbFilePath);
+			request.getRequestDispatcher("machine.jsp").forward(request, response);
 			break;
 		}
 		case "monitoring" : {
@@ -65,19 +69,25 @@ public class ServletMain extends HttpServlet {
 			out.flush();
 			break;
 		}
-		case "monitoringtest" : {
-			int ncId = Integer.parseInt(request.getParameter("ncId"));
-
-			//Initiate the process to send data to server
-			//				
-			//				
-			//				
-			response.setContentType("application/json");
-			// Get the printwriter object from response to write the required json object to the output stream      
-			PrintWriter out = response.getWriter();
-			// Assuming your json object is **jsonObject**, perform the following, it will return your json object  
-			out.print("{ ncId: '" + ncId + "', key2: 'value2' }");
-			out.flush();
+//		case "monitoringtest" : {
+//			int ncId = Integer.parseInt(request.getParameter("ncId"));
+//
+//			//Initiate the process to send data to server
+//			//				
+//			//				
+//			//				
+//			response.setContentType("application/json");
+//			// Get the printwriter object from response to write the required json object to the output stream      
+//			PrintWriter out = response.getWriter();
+//			// Assuming your json object is **jsonObject**, perform the following, it will return your json object  
+//			out.print("{ ncId: '" + ncId + "', key2: 'value2' }");
+//			out.flush();
+//			break;
+//		}
+		case "login" : {
+			List<String> dbNames = IoUtils.getFileNames(dbFolderPath, ".db");
+			request.setAttribute("databases", dbNames);
+			request.getRequestDispatcher("select-database.jsp").forward(request, response);
 			break;
 		}
 		case "example" : {break;}
