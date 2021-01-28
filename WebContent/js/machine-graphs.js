@@ -51,12 +51,3 @@ function generateGraph(){
 			]
 	});
 }
-
-function graphs() {
-	generateGraph();
-	MicroModal.show('graphs-modal');
-}
-
-function process() {
-	MicroModal.show('process-modal');
-}

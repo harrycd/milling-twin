@@ -234,6 +234,9 @@ function showBilletMesh(billet){
 	scene.add ( billetMesh );
 }
 
+var mrr = [];
+var mrrIndex = -1;
+var newSampleReceived = false;
 function animate() {
 	window.requestAnimationFrame( animate );
 	
@@ -243,6 +246,13 @@ function animate() {
 	let sseData = document.getElementById("data-store-element").sseData;
 	if (sseData == undefined) {
 		return;
+	}
+	
+	//Initialise MRR array if new sample received
+	if (newSampleReceived){
+		mrr.push(0);
+		mrrIndex++;
+		newSampleReceived = false;
 	}
 	
 	// SphereMesh positioning (used for debugging)
@@ -323,6 +333,8 @@ function animate() {
 				vertInd = arrayStartIndex + v;
 				if (vertInd >= 0){
 					if (billetMesh.geometry.attributes.position.array[vertInd] > toolNoseYPosition){
+						//Add difference to mrr array (difference equals to amount of material removed)
+						mrr[mrrIndex] += (billetMesh.geometry.attributes.position.array[vertInd] - toolNoseYPosition);
 						billetMesh.geometry.attributes.position.array[vertInd] = toolNoseYPosition; 
 					}
 				}

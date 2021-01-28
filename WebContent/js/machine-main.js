@@ -54,6 +54,25 @@ function populateData(data){
 
 }
 
+function graphs() {
+	generateGraph();
+	MicroModal.show('graphs-modal');
+}
+
+function process() {
+	MicroModal.show('process-modal');
+}
+
+function downloadObjectAsJson(exportObj, exportName){
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", exportName + ".json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  }
+
 function formatTime(timeDiff){
 	var hours = Math.trunc(timeDiff/3600);
 	var minutes = Math.trunc((timeDiff-hours*3600)/60);

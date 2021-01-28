@@ -52,6 +52,8 @@
 			<button id="connect-button" onclick="connect()">Connect</button>
 			<button id="view-graphs-button" onclick="graphs()">Graphs</button>
 			<button id="view-process-button" onclick="process()">Process</button>
+			<button id="mrr-button" onclick="downloadObjectAsJson(mrr, 'mrr.txt')">MRR</button>
+			
 			
 		</div>
 		<div class="main-wrapper">

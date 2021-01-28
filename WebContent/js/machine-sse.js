@@ -22,6 +22,7 @@ function connectToDataSource(){
 		document.getElementById("data-store-element").sseData = sseData;
 
 		populateData(sseData);
+		newSampleReceived = true;
 
 		timesMonitoring.push(sseData.monTime);
 		timesTheoretical.push(sseData.thTime);
