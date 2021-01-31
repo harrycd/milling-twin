@@ -21,7 +21,7 @@ function connectToDataSource(){
 		var sseData = JSON.parse(message.data);
 		document.getElementById("data-store-element").sseData = sseData;
 
-		populateData(sseData);
+		populateSseData(sseData);
 		newSampleReceived = true;
 
 		timesMonitoring.push(sseData.monTime);

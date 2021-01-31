@@ -118,6 +118,7 @@ function showToolMesh(tool){
 	//Remove current tool mesh from scene if exists
 	if (toolMesh != undefined){
 		scene.remove( toolMesh );
+		printStatus("previous tool removed");
 	}
 	
 	//Cutting tool mesh construction
@@ -235,6 +236,8 @@ function showBilletMesh(billet){
 }
 
 var mrr = [];
+var dataStorage = document.getElementById("data-store-element");
+
 var mrrIndex = -1;
 var newSampleReceived = false;
 function animate() {
@@ -243,7 +246,7 @@ function animate() {
 	// Here the position of the tool is specified
 	// Z and Y coordinates are different from the milling standard ones
 
-	let sseData = document.getElementById("data-store-element").sseData;
+	let sseData = dataStorage.sseData;
 	if (sseData == undefined) {
 		return;
 	}
@@ -269,9 +272,12 @@ function animate() {
 	}
 	
 	// Cutting tool move to new position
-	toolMesh.position.x = sseData.xCoord - billet.coordinates.xmin;
-	toolMesh.position.y = sseData.zCoord - billet.coordinates.ymin - tool.height/2;//tool length considered
-	toolMesh.position.z = sseData.yCoord - billet.coordinates.zmin;
+	toolMesh.position.x = sseData.X - billet.coordinates.xmin;
+	toolMesh.position.y = sseData.Z - billet.coordinates.ymin - tool.height/2;//tool length considered
+	toolMesh.position.z = sseData.Y - billet.coordinates.zmin;
+	document.getElementById("debug-1").value = sseData.X;
+	document.getElementById("debug-2").value = sseData.Z;
+	document.getElementById("debug-3").value = sseData.Y;
 
 	var xIndexToolPosition = Math.floor(toolMesh.position.x / elemSize);
 	var zIndexToolPosition = Math.floor(toolMesh.position.z / elemSize);
@@ -320,9 +326,6 @@ function animate() {
 
 			//Get the height that the machined element should be pushed at.
 			var toolNoseYPosition = toolMesh.position.y - tool.height/2;
-			document.getElementById("debug-1").value = tool.height/2;
-			document.getElementById("debug-2").value = toolMesh.position.y;
-			document.getElementById("debug-3").value = toolNoseYPosition;
 
 			//The vertices to amend if the vertice is machined by tool (relative values)
 			var verticeIndexToAmend = [11, 26, 32, 18*billetElemCountZ+5, 18*billetElemCountZ+17, 18*billetElemCountZ+20];
@@ -339,6 +342,25 @@ function animate() {
 					}
 				}
 			})
+			dataStorage.mrr = mrr;
+			let mrrMean = [];
+			let mrrPart;
+			let sum = 0;
+			let ma=10;
+			if (mrr.length < 1000){
+				chartData = mrr;
+			} else {
+				mrrPart = mrr.slice(mrr.length - 1000);
+				let i,j;
+				for (i = 0; i < (mrrPart.length - ma); i++){
+					for (j = 0; j < ma; j++){
+						sum += mrrPart[i+j];
+					}
+					mrrMean.push(sum);
+					sum = 0;
+				}
+				chartData = mrrMean;
+			}
 			//update the mesh
 			if (!billetMesh.geometry.attributes.position.needsUpdate){
 				billetMesh.geometry.attributes.position.needsUpdate = true;

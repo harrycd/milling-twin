@@ -50,9 +50,9 @@
 			</select> &nbsp;
 			
 			<button id="connect-button" onclick="connect()">Connect</button>
-			<button id="view-graphs-button" onclick="graphs()">Graphs</button>
+			<button id="view-graphs-button" onclick="generateGraph()">Graphs</button>
 			<button id="view-process-button" onclick="process()">Process</button>
-			<button id="mrr-button" onclick="downloadObjectAsJson(mrr, 'mrr.txt')">MRR</button>
+			<button id="mrr-button" onclick="downloadObjectAsJson({timesMonitoring,mrr}, 'mrr.txt')">MRR</button>
 			
 			
 		</div>
@@ -84,67 +84,35 @@
 			<span id="mon-time"> 0 : 0 : 0</span>
 		</div>
 	</div>
+	
 	<br>
-	<input type="text" id="debug-1" value="xxx">
-	<input type="text" id="debug-2" value="xxx">
-	<input type="text" id="debug-3" value="xxx">
-	
-	
-<!-- The modal containing the graphs -->
-	<div class="modal micromodal-slide" id="graphs-modal" aria-hidden="true">
-		<div class="modal__overlay" tabindex="-1" data-micromodal-close>
-			<div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="graphs-modal-title">
-				<header class="modal__header">
-					<h2 class="modal__title" id="graphs-modal-title">Graphs</h2>
-					<button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
-				</header>
-				<main class="modal__content" id="graphs-modal-content">
-					<div id="graphs-wrapper"></div>
-				</main>
-				<footer class="modal__footer">
-					<!-- <button class="modal__btn modal__btn-primary">Continue</button> -->
-					<!-- <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button> -->
-				</footer>
-			</div>
-		</div>
+	<div id="debug-sphere-controls">
+		x:<input id="sphere-x" type="text" size="1" value="0">
+		&nbsp;y:<input id="sphere-y" type="text" size="1" value="0">
+		&nbsp;z:<input id="sphere-z" type="text" size="1" value="0">
 	</div>
-	
-<!-- The modal containing the process simulation canvas -->
-	
-	<div class="modal micromodal-slide" id="process-modal" aria-hidden="true">
-		<div class="modal__overlay" tabindex="-1" data-micromodal-close>
-			<div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="process-modal-title">
-				<header class="modal__header">
-					<h2 class="modal__title" id="process-modal-title">Live Process</h2>
-					<button onclick="wire()">W</button>
-					<button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
-				</header>
-				<main class="modal__content" id="process-modal-content">
-					<!-- Here goes the canvas for process representation -->
-					<div id="debug-sphere-controls">
-						x:<input id="sphere-x" type="text" size="1" value="0">
-						&nbsp;y:<input id="sphere-y" type="text" size="1" value="0">
-						&nbsp;z:<input id="sphere-z" type="text" size="1" value="0">
-					</div>
-					<div id="canvas-wrapper"></div>
-				</main>
-				<footer class="modal__footer">
-					<!-- <button class="modal__btn modal__btn-primary">Continue</button> -->
-					<!-- <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button> -->
-				</footer>
-			</div>
-		</div>
-	</div>
+	<div id="canvas-wrapper"></div>
+
+	<br>
+	<div id="graphs-wrapper"></div>
+
 	
 <!-- Various assistive functions -->
 	<script src="js/machine-main.js" type="text/javascript"></script>
 
-<!-- Graphs display implementation -->
+	<br>
+	Debugging:
+	<input type="text" id="debug-1" value="xxx" disabled>
+	<input type="text" id="debug-2" value="xxx" disabled>
+	<input type="text" id="debug-3" value="xxx" disabled>
+	<br>
 
-	<script src="js/micromodal.min.js" type="text/javascript"></script>
 	<script src="js/highcharts.js" type="text/javascript"></script>
 	<script src="js/exporting.js" type="text/javascript"></script>
+	<script src="js/export-data.js" type="text/javascript"></script>
 	<script src="js/offline-exporting.js" type="text/javascript"></script>
+	<script src="js/accessibility.js" type="text/javascript"></script>
+	<script src="js/series-label.js" type="text/javascript"></script>
 	<script src="js/machine-graphs.js" type="text/javascript"></script>
 
 <!-- Milling Virtual implementation	 -->

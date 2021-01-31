@@ -2,6 +2,8 @@
  * Various functions needed to run the page
  */
 
+var dataStorage;
+
 function printStatus(message) {
 	var statusArea = document.getElementById("status-area");
 	statusArea.value += new Date().toLocaleTimeString() + " " + message	+ "\n";
@@ -31,6 +33,7 @@ function ncSelection(){
 function connect(){
 	connectToDataSource();
 	startSimulation();
+	generateGraph();
 	document.getElementById("connect-button").innerHTML = "Disconnect";
 	document.getElementById("connect-button").setAttribute("onclick", "disconnect()");
 }
@@ -43,24 +46,23 @@ function disconnect(){
 }
 
 function populateData(data){
-	document.getElementById("xg-coord").innerHTML = data.xCoord.toFixed(3);
-	document.getElementById("yg-coord").innerHTML = data.yCoord.toFixed(3);
-	document.getElementById("zg-coord").innerHTML = data.zCoord.toFixed(3);
-	document.getElementById("xl-coord").innerHTML = (data.xCoord - billetData.xBilletMin).toFixed(3);
-	document.getElementById("yl-coord").innerHTML = (data.yCoord - billetData.yBilletMin).toFixed(3);
-	document.getElementById("zl-coord").innerHTML = (data.zCoord - billetData.zBilletMin).toFixed(3);
+	document.getElementById("xg-coord").innerHTML = data.X.toFixed(3);
+	document.getElementById("yg-coord").innerHTML = data.Y.toFixed(3);
+	document.getElementById("zg-coord").innerHTML = data.Z.toFixed(3);
+	document.getElementById("xl-coord").innerHTML = (data.X - billetData.xBilletMin).toFixed(3);
+	document.getElementById("yl-coord").innerHTML = (data.Y - billetData.yBilletMin).toFixed(3);
+	document.getElementById("zl-coord").innerHTML = (data.Z - billetData.zBilletMin).toFixed(3);
 	
-	document.getElementById("mon-time").innerHTML = formatTime(data.monTime);
-
+	document.getElementById("mon-time").innerHTML = formatTime(data.t);
 }
 
-function graphs() {
-	generateGraph();
-	MicroModal.show('graphs-modal');
-}
-
-function process() {
-	MicroModal.show('process-modal');
+function populateSseData(sseData){
+	// For compatibility with current version keep the next two lines
+	populateData(sseData);
+	document.getElementById("data-store-element").sseData = sseData;
+	//TODO
+	
+	
 }
 
 function downloadObjectAsJson(exportObj, exportName){
