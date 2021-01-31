@@ -7,6 +7,10 @@ function addPoint(seriesIndex, value){
 	chart.series[seriesIndex].addPoint([value]);
 }
 
+function setChartData(data){
+	chartData = data;
+}
+
 function generateRandomData(pointCount){
 	var data = [];
 	var i = 0;

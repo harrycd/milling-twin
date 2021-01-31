@@ -5,11 +5,14 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" href="css/bootstrap.min.css">
+
 <title>Login</title>
 </head>
 <body>
-	<input type="text" value="username" disabled />
-	<input type="text" value="password" disabled />
-	<button onclick="window.location.href='sm?action=login'">Login</button>
+	<input type="text" class="form-control" placeholder="username" disabled />
+	<input type="password" value="password" disabled />
+	<button class="btn btn-primary" onclick="window.location.href='sm?action=login'">Login</button>
+	<script src="js/bootstrap.bundle.min.js" type="text/javascript"></script>
 </body>
 </html>

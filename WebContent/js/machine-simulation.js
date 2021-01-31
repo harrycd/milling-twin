@@ -348,7 +348,7 @@ function animate() {
 			let sum = 0;
 			let ma=10;
 			if (mrr.length < 1000){
-				chartData = mrr;
+				setChartData(mrr);
 			} else {
 				mrrPart = mrr.slice(mrr.length - 1000);
 				let i,j;
@@ -359,7 +359,7 @@ function animate() {
 					mrrMean.push(sum);
 					sum = 0;
 				}
-				chartData = mrrMean;
+				setChartData(mrrMean);
 			}
 			//update the mesh
 			if (!billetMesh.geometry.attributes.position.needsUpdate){

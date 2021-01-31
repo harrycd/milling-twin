@@ -3,6 +3,8 @@
  */
 
 var dataStorage;
+var timesMonitoring = [];
+var timesTheoretical = [];
 
 function printStatus(message) {
 	var statusArea = document.getElementById("status-area");
@@ -54,6 +56,9 @@ function populateData(data){
 	document.getElementById("zl-coord").innerHTML = (data.Z - billetData.zBilletMin).toFixed(3);
 	
 	document.getElementById("mon-time").innerHTML = formatTime(data.t);
+	
+	timesMonitoring.push(data.monTime);
+	timesTheoretical.push(data.thTime);
 }
 
 function populateSseData(sseData){

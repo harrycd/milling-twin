@@ -3,8 +3,6 @@
  */
 
 var eventSource = null;
-var timesMonitoring = [];
-var timesTheoretical = [];
 
 function connectToDataSource(){
 	printStatus("Establishing connection...");
@@ -23,9 +21,6 @@ function connectToDataSource(){
 
 		populateSseData(sseData);
 		newSampleReceived = true;
-
-		timesMonitoring.push(sseData.monTime);
-		timesTheoretical.push(sseData.thTime);
 
 	}
 	

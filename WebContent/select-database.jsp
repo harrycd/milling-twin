@@ -4,6 +4,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link rel="stylesheet" href="css/bootstrap.min.css">
+
 <title>Connect</title>
 </head>
 <body>
@@ -16,6 +18,7 @@
 		<input name="action" type="hidden" value="load-database" />
 		<button type="submit">Connect</button>
 	</form>
-
+	
+	<script src="js/bootstrap.bundle.min.js" type="text/javascript"></script>
 </body>
 </html>
