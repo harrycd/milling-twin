@@ -2,15 +2,7 @@
  * Various functions needed to run the page
  */
 
-var dataStorage;
-var timesMonitoring = [];
-var timesTheoretical = [];
-
-function printStatus(message) {
-	var statusArea = document.getElementById("status-area");
-	statusArea.value += new Date().toLocaleTimeString() + " " + message	+ "\n";
-	statusArea.scrollTop = statusArea.scrollHeight;
-}
+var dataStorage = {};
 
 var billetData;
 function ncSelection(){
@@ -47,27 +39,73 @@ function disconnect(){
 	document.getElementById("connect-button").setAttribute("onclick", "connect()");
 }
 
-function populateData(data){
-	document.getElementById("xg-coord").innerHTML = data.X.toFixed(3);
-	document.getElementById("yg-coord").innerHTML = data.Y.toFixed(3);
-	document.getElementById("zg-coord").innerHTML = data.Z.toFixed(3);
-	document.getElementById("xl-coord").innerHTML = (data.X - billetData.xBilletMin).toFixed(3);
-	document.getElementById("yl-coord").innerHTML = (data.Y - billetData.yBilletMin).toFixed(3);
-	document.getElementById("zl-coord").innerHTML = (data.Z - billetData.zBilletMin).toFixed(3);
+var sampleCounter = 0;
+function populateSseData(sseData){
+	// For compatibility with previous version keep the next line
+	newSampleReceived = true;
 	
-	document.getElementById("mon-time").innerHTML = formatTime(data.t);
+	// Store data to local arrays
+	updateKeys(dataStorage, sseData);
 	
-	timesMonitoring.push(data.monTime);
-	timesTheoretical.push(data.thTime);
+	populateToolPositionTable(dataStorage.machine, sampleCounter);
+	
+	if ((++sampleCounter % 50) == 0){ // check every 100 samples
+		updateAvailableGraphParametersList(dataStorage.machine, dataStorage.simulator);
+	}
+	
 }
 
-function populateSseData(sseData){
-	// For compatibility with current version keep the next two lines
-	populateData(sseData);
-	document.getElementById("data-store-element").sseData = sseData;
-	//TODO
+function populateToolPositionTable(data, index){// TODO now it receives arrays so it has to get the last element of the array!!
+	document.getElementById("xg-coord").innerHTML = data.X[index].toFixed(3);
+	document.getElementById("yg-coord").innerHTML = data.Y[index].toFixed(3);
+	document.getElementById("zg-coord").innerHTML = data.Z[index].toFixed(3);
+	document.getElementById("xl-coord").innerHTML = (data.X[index] - billetData.xBilletMin).toFixed(3);
+	document.getElementById("yl-coord").innerHTML = (data.Y[index] - billetData.yBilletMin).toFixed(3);
+	document.getElementById("zl-coord").innerHTML = (data.Z[index] - billetData.zBilletMin).toFixed(3);
 	
+	document.getElementById("mon-time").innerHTML = formatTime(data.t[index]);
+}
+
+function updateAvailableGraphParametersList(machineData, simulatorData){
+	const machineParams = Object.keys(machineData);
+	const simulatorParams = Object.keys(simulatorData);
+	const commonParams = machineParams.filter(value => simulatorParams.includes(value));
 	
+	let select = document.getElementById("available-graph-parameters");
+	const selected = select.options[select.selectedIndex].text;
+
+	// Remove previous parameters
+	select.length = 0;
+	
+	// Add first the selected and the everything available
+	select.add(new Option(selected));
+	for (const commonParam of commonParams){
+		select.add(new Option(commonParam));
+	}
+	
+}
+
+/**
+ * Generates the structure of supplied data and appends the data to objTree arrays.
+ * 
+ * @param objTree - object to append data
+ * @param data - data to append
+ * 
+ */
+function updateKeys(objTree, data){
+	const keys = Object.keys(data);
+	for (const key of keys){
+		objTree[key] = objTree[key] || {};
+		if (typeof(data[key]) == "number"){ 	// This is the end of the branch so value should be pushed to the array
+			if ((Object.keys(objTree[key]).length === 0 && objTree[key].constructor === Object)){ // Check if it is an empty object {}
+				objTree[key] = []; 				// Turn it to the array that stores values
+			}
+			objTree[key].push(data[key])		// Add the value to the array
+		
+		} else {								// It is not the end of the branch
+			updateKeys(objTree[key], data[key]);// Continue to children
+		}
+	}
 }
 
 function downloadObjectAsJson(exportObj, exportName){
@@ -78,7 +116,13 @@ function downloadObjectAsJson(exportObj, exportName){
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
-  }
+ }
+
+function printStatus(message) {
+	var statusArea = document.getElementById("status-area");
+	statusArea.value += new Date().toLocaleTimeString() + " " + message	+ "\n";
+	statusArea.scrollTop = statusArea.scrollHeight;
+}
 
 function formatTime(timeDiff){
 	var hours = Math.trunc(timeDiff/3600);
@@ -88,7 +132,7 @@ function formatTime(timeDiff){
 	if (hours < 0 || minutes < 0 || seconds < 0){
 		sign = "-";
 	} else {
-		sign = "+";
+		sign = "";
 	}
 	return (sign + Math.abs(hours) + " : " + Math.abs(minutes) + " : " + Math.abs(seconds));
 }

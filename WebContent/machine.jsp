@@ -13,7 +13,6 @@
 
 </head>
 <body>
-	<div id="data-store-element"></div>
 	
 	<div class="container">
 		<div class="row mt-3">
@@ -61,31 +60,25 @@
 				</table>
 			</div>
 		</div>
+		
 		<div class="row mt-3">
 			<div class="col-sm">
-				Process Time : 
+				<label class="col-form-label">Process Time</label> 
 				<span id="mon-time"> 0 : 0 : 0</span>
 			</div>
 		</div>
-	
-		
 		
 		<div class="row mt-3">
 			<div id="canvas-wrapper" ></div>
 		</div>
-		
+
 		<div class="row mt-3">
+			<select id="available-graph-parameters" class="form-select" onchange="changeGraphParameter(this.options[this.selectedIndex].text)">
+				<option selected>..Select Parameter</option>
+			</select>
 			<div id="graphs-wrapper" class="col-sm"></div>
 		</div>
-		
-		<div class="row mt-3">
-			<div class="col-sm">
-				Debugging status:
-				<input type="text" id="debug-1" value="xxx" disabled>
-				<input type="text" id="debug-2" value="xxx" disabled>
-				<input type="text" id="debug-3" value="xxx" disabled>
-			</div>
-		</div>
+
 		<div id="debug-sphere-controls" class="row mt-3">
 			<div class="col-sm">
 				<label class="form-label m-2">Sphere control:</label>

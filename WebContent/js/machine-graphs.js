@@ -1,28 +1,33 @@
 /**
  * Generates graphs comparing simulation with monitoring data
  */
-var chartData; //store in this element the data to show in the graph (see reference for data format)
+var chart;
+var chartData = {}; //store in this element the data to show in the graph (see reference for data format)
 
 function addPoint(seriesIndex, value){
 	chart.series[seriesIndex].addPoint([value]);
 }
 
-function setChartData(data){
-	chartData = data;
+function setChartData(dataX, dataY){
+	chartData.dataX = dataX;
+	chartData.dataY = dataY;
+	chartData.dataPointCount = 1000;
 }
 
-function generateRandomData(pointCount){
-	var data = [];
-	var i = 0;
-	for (i = 0; i <= pointCount; i += 1) {
-		data.push([Math.random()*10]);
-	}
-	
-	return data;
+function setChartTitle(title){
+	chart.title.text = title;
+}
+
+function changeGraphParameter(paramName){
+	var dataY = dataStorage.machine[paramName];
+	var dataX = dataStorage.machine["t"];
+
+	setChartData(dataX, dataY);
+	setChartTitle(paramName);
 }
 
 function generateGraph(){
-	Highcharts.chart('graphs-wrapper', {
+	chart = Highcharts.chart('graphs-wrapper', {
 	    chart: {
 	        type: 'line',
 	        events: {
@@ -31,21 +36,17 @@ function generateGraph(){
 	                // set up the updating of the chart each second
 	                var series = this.series[0];
 	                setInterval(function () {
-	                	if(chartData != undefined){
-//		                    series.addPoint([Math.random()*10], true, true, false);
-	                		series.setData(chartData, true, false, true);
+	                	if(chartData.dataY != undefined){
+	                		let dataXY = combineArrays(chartData.dataX, chartData.dataY);
+	                		series.setData(dataXY.slice(-chartData.dataPointCount), true, false, true);
 	                	}
 	                }, 1000);
 	            }
 	        }
 	    },
 
-	    time: {
-	        useUTC: false
-	    },
-
 	    title: {
-	        text: 'Live random data'
+	        text: 'Machine data'
 	    },
 
 	    xAxis: {
@@ -78,8 +79,15 @@ function generateGraph(){
 	    },
 
 	    series: [{
-	        name: 'Random data',
+	        name: 'Machine data',
 	        data: [0]
 	    }]
 	});
+}
+
+function combineArrays(dataX, dataY){
+	let dataXY = dataX.map(function(x,i){
+		return [x * 1000, dataY[i]];
+	});
+	return dataXY;
 }

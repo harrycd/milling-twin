@@ -236,22 +236,22 @@ function showBilletMesh(billet){
 }
 
 var mrr = [];
-var dataStorage = document.getElementById("data-store-element");
 
 var mrrIndex = -1;
 var newSampleReceived = false;
 function animate() {
 	window.requestAnimationFrame( animate );
 	
-	// Here the position of the tool is specified
-	// Z and Y coordinates are different from the milling standard ones
-
-	let sseData = dataStorage.sseData;
-	if (sseData == undefined) {
+	// Ensure that data has been received 
+	if (dataStorage.machine == undefined) {
 		return;
 	}
 	
-	//Initialise MRR array if new sample received
+	// Get the index position of the new sample in the storage arrays
+	let toolPropertiesArrayIndex = dataStorage.machineTool.toolRadius.length-1; // Index for cutting tool related data
+	let sampleIndex = dataStorage.machine.X.length-1; //Index for all other data
+
+	//Add new MRR array element if new sample received
 	if (newSampleReceived){
 		mrr.push(0);
 		mrrIndex++;
@@ -264,20 +264,23 @@ function animate() {
 	sphereMesh.position.z = document.getElementById("sphere-z").value;
 	
 	// Cutting tool change if needed
-	if (sseData.toolRadius != undefined && tool.radius != sseData.toolRadius){
-		tool.radius = sseData.toolRadius; //to prevent re-runing the block until tool is changed
-//		tool.height = sseData.toolHeight;
-		tool = generateTool(sseData.toolHeight, sseData.toolRadius, 16)
+	if (dataStorage.machineTool.toolRadius[0] != undefined 
+			&& dataStorage.machineTool.toolRadius[toolPropertiesArrayIndex] != tool.radius){
+		
+		tool.radius = dataStorage.machineTool.toolRadius[toolPropertiesArrayIndex]; //to prevent re-runing the block until tool is changed
+
+		tool = generateTool(
+				dataStorage.machineTool.toolHeight[toolPropertiesArrayIndex], 
+				dataStorage.machineTool.toolRadius[toolPropertiesArrayIndex], 
+				16);
+		
 		showToolMesh(tool);
 	}
 	
 	// Cutting tool move to new position
-	toolMesh.position.x = sseData.X - billet.coordinates.xmin;
-	toolMesh.position.y = sseData.Z - billet.coordinates.ymin - tool.height/2;//tool length considered
-	toolMesh.position.z = sseData.Y - billet.coordinates.zmin;
-	document.getElementById("debug-1").value = sseData.X;
-	document.getElementById("debug-2").value = sseData.Z;
-	document.getElementById("debug-3").value = sseData.Y;
+	toolMesh.position.x = dataStorage.machine.X[sampleIndex] - billet.coordinates.xmin;
+	toolMesh.position.y = dataStorage.machine.Z[sampleIndex] - billet.coordinates.ymin - tool.height/2;//tool length considered
+	toolMesh.position.z = dataStorage.machine.Y[sampleIndex] - billet.coordinates.zmin;
 
 	var xIndexToolPosition = Math.floor(toolMesh.position.x / elemSize);
 	var zIndexToolPosition = Math.floor(toolMesh.position.z / elemSize);
@@ -342,25 +345,9 @@ function animate() {
 					}
 				}
 			})
-			dataStorage.mrr = mrr;
-			let mrrMean = [];
-			let mrrPart;
-			let sum = 0;
-			let ma=10;
-			if (mrr.length < 1000){
-				setChartData(mrr);
-			} else {
-				mrrPart = mrr.slice(mrr.length - 1000);
-				let i,j;
-				for (i = 0; i < (mrrPart.length - ma); i++){
-					for (j = 0; j < ma; j++){
-						sum += mrrPart[i+j];
-					}
-					mrrMean.push(sum);
-					sum = 0;
-				}
-				setChartData(mrrMean);
-			}
+			
+			//plotMRR(mrr, 10);
+			
 			//update the mesh
 			if (!billetMesh.geometry.attributes.position.needsUpdate){
 				billetMesh.geometry.attributes.position.needsUpdate = true;
@@ -372,6 +359,32 @@ function animate() {
 
 	renderer.render( scene, camera );
 };
+
+/**
+ *  Plots a graph of Material Removed (it is not rate)
+ * @param mrr
+ * @param ma
+ */
+function plotMRR(mrr, ma){
+	dataStorage.mrr = mrr;
+	let mrrMean = [];
+	let mrrPart;
+	let sum = 0;
+	if (mrr.length < 1000){
+		setChartData(mrr);
+	} else {
+		mrrPart = mrr.slice(mrr.length - 1000);
+		let i,j;
+		for (i = 0; i < (mrrPart.length - ma); i++){
+			for (j = 0; j < ma; j++){
+				sum += mrrPart[i+j];
+			}
+			mrrMean.push(sum);
+			sum = 0;
+		}
+		setChartData(mrrMean);
+	}
+}
 
 function startSimulation(){
 	animate();

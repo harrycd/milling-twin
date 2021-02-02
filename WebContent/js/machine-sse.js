@@ -17,11 +17,7 @@ function connectToDataSource(){
 	eventSource.onmessage = function(message){
 		//Store data on DOM element so it is available to other functions
 		var sseData = JSON.parse(message.data);
-		document.getElementById("data-store-element").sseData = sseData;
-
 		populateSseData(sseData);
-		newSampleReceived = true;
-
 	}
 	
 	eventSource.onerror = function(){
