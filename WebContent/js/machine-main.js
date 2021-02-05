@@ -3,8 +3,8 @@
  */
 
 var dataStorage = {};
+var otherStorage = {};
 
-var billetData;
 function ncSelection(){
 	var ncCombobox = document.getElementById("ncs");
 	var ncId = ncCombobox.options[ncCombobox.selectedIndex].value;
@@ -13,9 +13,9 @@ function ncSelection(){
 	xhr.open('GET', 'sm?action=billetretrieve&ncId=' + ncId);
 	xhr.onload = function() {
 		if (xhr.status === 200) {
-			billetData = JSON.parse(xhr.responseText);
+			otherStorage.billetData = JSON.parse(xhr.responseText);
 			printStatus("loading... ");
-			initialiseSimulation(billetData);
+			initialiseSimulation(otherStorage.billetData);
 			printStatus("NC file loaded successfully");
 		} else {
 			printStatus('Request failed: ' + xhr.status);
@@ -28,6 +28,7 @@ function connect(){
 	connectToDataSource();
 	startSimulation();
 	generateGraph();
+	otherStorage.sampleCounter = 0;
 	document.getElementById("connect-button").innerHTML = "Disconnect";
 	document.getElementById("connect-button").setAttribute("onclick", "disconnect()");
 }
@@ -39,50 +40,85 @@ function disconnect(){
 	document.getElementById("connect-button").setAttribute("onclick", "connect()");
 }
 
-var sampleCounter = 0;
 function populateSseData(sseData){
 	// For compatibility with previous version keep the next line
-	newSampleReceived = true;
+	otherStorage.newSampleReceived = true;
 	
 	// Store data to local arrays
 	updateKeys(dataStorage, sseData);
 	
-	populateToolPositionTable(dataStorage.machine, sampleCounter);
-	
-	if ((++sampleCounter % 50) == 0){ // check every 100 samples
-		updateAvailableGraphParametersList(dataStorage.machine, dataStorage.simulator);
+	// Check if new parameters have been received (check every 50 samples)
+	if ((otherStorage.sampleCounter % 50) == 0){
+		updateParametersList(dataStorage.machine, dataStorage.simulator);
 	}
 	
-}
-
-function populateToolPositionTable(data, index){// TODO now it receives arrays so it has to get the last element of the array!!
-	document.getElementById("xg-coord").innerHTML = data.X[index].toFixed(3);
-	document.getElementById("yg-coord").innerHTML = data.Y[index].toFixed(3);
-	document.getElementById("zg-coord").innerHTML = data.Z[index].toFixed(3);
-	document.getElementById("xl-coord").innerHTML = (data.X[index] - billetData.xBilletMin).toFixed(3);
-	document.getElementById("yl-coord").innerHTML = (data.Y[index] - billetData.yBilletMin).toFixed(3);
-	document.getElementById("zl-coord").innerHTML = (data.Z[index] - billetData.zBilletMin).toFixed(3);
+	// Update the table showing parameter values
+	updateParamTable(dataStorage.machine, dataStorage.simulator, otherStorage.sampleCounter);
 	
-	document.getElementById("mon-time").innerHTML = formatTime(data.t[index]);
+	otherStorage.sampleCounter++;
 }
 
-function updateAvailableGraphParametersList(machineData, simulatorData){
+function updateParamTable(machineData, simulatorData, index){// TODO now it receives arrays so it has to get the last element of the array!!
+	const x_machine = machineData.X[index] - otherStorage.billetData.xBilletMin;
+	const x_simulator = simulatorData.X[index] - otherStorage.billetData.xBilletMin;
+	document.getElementById("x-local-coord-machine").innerHTML = x_machine.toFixed(3);
+	document.getElementById("x-local-coord-simulator").innerHTML = x_simulator.toFixed(3);
+	document.getElementById("x-local-coord-diff").innerHTML = (x_machine - x_simulator).toFixed(3);
+
+	const y_machine = machineData.Y[index] - otherStorage.billetData.yBilletMin;
+	const y_simulator = simulatorData.Y[index] - otherStorage.billetData.yBilletMin;
+	document.getElementById("y-local-coord-machine").innerHTML = y_machine.toFixed(3);
+	document.getElementById("y-local-coord-simulator").innerHTML = y_simulator.toFixed(3);
+	document.getElementById("y-local-coord-diff").innerHTML = (y_machine - y_simulator).toFixed(3);
+	
+	const z_machine = machineData.Z[index] - otherStorage.billetData.zBilletMin;
+	const z_simulator = simulatorData.Z[index] - otherStorage.billetData.zBilletMin;
+	document.getElementById("z-local-coord-machine").innerHTML = z_machine.toFixed(3);
+	document.getElementById("z-local-coord-simulator").innerHTML = z_simulator.toFixed(3);
+	document.getElementById("z-local-coord-diff").innerHTML = (z_machine - z_simulator).toFixed(3);
+	
+	updateRowValues(machineData, simulatorData, index)
+	
+	document.getElementById("mon-time").innerHTML = formatTime(machineData.t[index]);
+}
+
+function updateRowValues(machineData, simulatorData, index){
+	for (param of otherStorage.commonParams){
+		document.getElementById(param + "-param-machine").innerHTML = machineData[param][index].toFixed(3);
+		document.getElementById(param + "-param-simulator").innerHTML = simulatorData[param][index].toFixed(3);
+		document.getElementById(param + "-param-diff").innerHTML = (machineData[param][index] - simulatorData[param][index]).toFixed(3);
+	}
+}
+
+function updateParametersList(machineData, simulatorData){
 	const machineParams = Object.keys(machineData);
 	const simulatorParams = Object.keys(simulatorData);
-	const commonParams = machineParams.filter(value => simulatorParams.includes(value));
+	//TODO change to union
+	otherStorage.commonParams = machineParams.filter(value => simulatorParams.includes(value));
 	
 	let select = document.getElementById("available-graph-parameters");
-	const selected = select.options[select.selectedIndex].text;
-
-	// Remove previous parameters
-	select.length = 0;
-	
-	// Add first the selected and the everything available
-	select.add(new Option(selected));
-	for (const commonParam of commonParams){
-		select.add(new Option(commonParam));
-	}
-	
+	if (select.length < otherStorage.commonParams.length + 1) { //Run only if params change. Note 1 param is displayed twice (thus the +1)
+		const selected = select.options[select.selectedIndex].text;
+		const paramTable = document.getElementById("table-params");
+		
+		
+		// Remove previous parameters
+		select.length = 0;
+		
+		// Add first the selected and the everything available
+		select.add(new Option(selected));
+		for (const commonParam of otherStorage.commonParams){
+			select.add(new Option(commonParam));
+			
+			const row = paramTable.insertRow();
+			row.setAttribute("style","text-align:right");
+			
+			row.insertCell().innerHTML = commonParam;
+			row.insertCell().setAttribute("id", (commonParam + "-param-machine") );
+			row.insertCell().setAttribute("id", (commonParam + "-param-simulator") );
+			row.insertCell().setAttribute("id", (commonParam + "-param-diff") );
+		}
+	} 
 }
 
 /**

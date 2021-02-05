@@ -8,22 +8,24 @@ function addPoint(seriesIndex, value){
 	chart.series[seriesIndex].addPoint([value]);
 }
 
-function setChartData(dataX, dataY){
+function changeGraphParameter(paramName){
+	var dataYMachine = dataStorage.machine[paramName];
+	var dataYSimulator = dataStorage.simulator[paramName];
+	var dataX = dataStorage.machine["t"];
+	
+	setChartData(dataX, dataYMachine, dataYSimulator);
+	setChartTitle(paramName);
+}
+
+function setChartData(dataX, dataYMachine, dataYSimulator){
 	chartData.dataX = dataX;
-	chartData.dataY = dataY;
+	chartData.dataYMachine = dataYMachine;
+	chartData.dataYSimulator = dataYSimulator;
 	chartData.dataPointCount = 1000;
 }
 
 function setChartTitle(title){
 	chart.title.text = title;
-}
-
-function changeGraphParameter(paramName){
-	var dataY = dataStorage.machine[paramName];
-	var dataX = dataStorage.machine["t"];
-
-	setChartData(dataX, dataY);
-	setChartTitle(paramName);
 }
 
 function generateGraph(){
@@ -34,11 +36,13 @@ function generateGraph(){
 	            load: function () {
 
 	                // set up the updating of the chart each second
-	                var series = this.series[0];
+	                var series = this.series;
 	                setInterval(function () {
-	                	if(chartData.dataY != undefined){
-	                		let dataXY = combineArrays(chartData.dataX, chartData.dataY);
-	                		series.setData(dataXY.slice(-chartData.dataPointCount), true, false, true);
+	                	if(chartData.dataYMachine != undefined){
+	                		let dataMachine = combineArrays(chartData.dataX, chartData.dataYMachine);
+	                		let dataSimulator = combineArrays(chartData.dataX, chartData.dataYSimulator);
+	                		series[0].setData(dataMachine.slice(-chartData.dataPointCount), true, false, true);
+	                		series[1].setData(dataSimulator.slice(-chartData.dataPointCount), true, false, true);
 	                	}
 	                }, 1000);
 	            }
@@ -46,7 +50,7 @@ function generateGraph(){
 	    },
 
 	    title: {
-	        text: 'Machine data'
+	        text: 'Digital Twin data'
 	    },
 
 	    xAxis: {
@@ -78,10 +82,16 @@ function generateGraph(){
 	        enabled: false
 	    },
 
-	    series: [{
-	        name: 'Machine data',
-	        data: [0]
-	    }]
+	    series: [
+	    	{
+		        name: 'Machine',
+		        data: [0]
+	    	},
+	    	{
+	    		name: 'Simulator',
+	    		data: [0]
+	    	}
+	    ]
 	});
 }
 

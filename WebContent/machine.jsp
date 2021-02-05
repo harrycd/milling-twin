@@ -1,15 +1,12 @@
 <!DOCTYPE html>
-<%@page import="uk.ac.cf.milling.utils.db.BilletUtils"%>
-<%@page import="uk.ac.cf.milling.objects.Billet"%>
-<%@page import="uk.ac.cf.milling.objects.Nc"%>
-<%@page import="uk.ac.cf.milling.utils.db.NcUtils"%>
-<%@page import="java.util.List"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Milling Twin</title>
 
 <link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="shortcut icon" href="image/favicon.ico" />
 
 </head>
 <body>
@@ -17,12 +14,11 @@
 	<div class="container">
 		<div class="row mt-3">
 			<div class="col-sm">
-				<% List<Nc> ncs = NcUtils.getNcs(); %>
 				<select id="ncs" onchange="ncSelection()">
 					<option value="0">Select NC file...</option>
-					<% for (Nc nc : ncs) { %>
-					<option value=<%out.print(nc.getNcId());%>><%out.print(nc.toString());%></option>
-					<% } %>
+					<c:forEach items="${ncs}" var="nc">
+						<option value="${nc.ncId}"> ${nc} </option>
+					</c:forEach>
 				</select>
 			</div>
 			<div class="col-sm">
@@ -36,27 +32,42 @@
 				<textarea id="status-area" rows="5" cols="100"></textarea>
 			</div>
 		</div>
+		
+		<div class="row mt-3">
+			<div id="canvas-wrapper" class="border border-primary" ></div>
+		</div>
+
 		<div class="row mt-3">
 			<div class="col-sm">
-				<table class="table table-bordered">
-					<tr>
-						<th> Scope </th>
-						<th> X </th>
-						<th> Y </th>
-						<th> Z </th>
-					</tr>
-					<tr>
-						<td>Global</td>
-						<td id="xg-coord">0.000</td>
-						<td id="yg-coord">0.000</td>
-						<td id="zg-coord">0.000</td>
-					</tr>
-					<tr>
-						<td>Local</td>
-						<td id="xl-coord">0.000</td>
-						<td id="yl-coord">0.000</td>
-						<td id="zl-coord">0.000</td>
-					</tr>
+				<table id="table-params" class="table table-bordered table-hover table-sm">
+					<thead>
+						<tr style="text-align:center">
+							<th>Parameter</th>
+							<th>Machine</th>
+							<th>Simulator</th>
+							<th>Difference</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr style="text-align:right">
+							<td> X Local </td>
+							<td id = "x-local-coord-machine"></td>
+							<td id = "x-local-coord-simulator"></td>
+							<td id = "x-local-coord-diff"></td>
+						</tr>
+						<tr style="text-align:right">
+							<td> Y Local </td>
+							<td id = "y-local-coord-machine"></td>
+							<td id = "y-local-coord-simulator"></td>
+							<td id = "y-local-coord-diff"></td>
+						</tr>
+						<tr style="text-align:right">
+							<td> Z Local </td>
+							<td id = "z-local-coord-machine"></td>
+							<td id = "z-local-coord-simulator"></td>
+							<td id = "z-local-coord-diff"></td>
+						</tr>
+					</tbody>
 				</table>
 			</div>
 		</div>
@@ -67,10 +78,6 @@
 				<span id="mon-time"> 0 : 0 : 0</span>
 			</div>
 		</div>
-		
-		<div class="row mt-3">
-			<div id="canvas-wrapper" ></div>
-		</div>
 
 		<div class="row mt-3">
 			<select id="available-graph-parameters" class="form-select" onchange="changeGraphParameter(this.options[this.selectedIndex].text)">
@@ -79,23 +86,13 @@
 			<div id="graphs-wrapper" class="col-sm"></div>
 		</div>
 
-		<div id="debug-sphere-controls" class="row mt-3">
-			<div class="col-sm">
-				<label class="form-label m-2">Sphere control:</label>
-				<label class="form-label">x:</label>
-				<input id="sphere-x" type="text" class="m-2" size="1" value="0">
-				<label class="form-label">y:</label>
-				<input id="sphere-y" type="text" class="m-2" size="1" value="0">
-				<label class="form-label">z:</label>
-				<input id="sphere-z" type="text" class="m-2" size="1" value="0">
-			</div>
-		</div>
 	</div>
 	
 	<script src="js/bootstrap.bundle.min.js" type="text/javascript"></script>
 	
 <!-- Various assistive functions -->
 	<script src="js/machine-main.js" type="text/javascript"></script>
+
 
 
 	<script src="js/highcharts.js" type="text/javascript"></script>

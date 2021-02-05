@@ -61,12 +61,6 @@ function initialiseSimulation(billetData){
 	plane.position.y -= billet.size.y/2;
 	plane.position.z += billet.size.z/2;
 	
-	//For debugging purposes a sphere is added
-	const debugSphere = new THREE.SphereGeometry( 5, 32, 32 );
-	const debugSphereMaterial = new THREE.MeshBasicMaterial( {color: 0xff00ff} );
-	sphereMesh = new THREE.Mesh( debugSphere, debugSphereMaterial );
-	scene.add( sphereMesh );
-	
 // axis
 	var axesHelper = new THREE.AxesHelper( 5 );
 	scene.add( axesHelper );
@@ -257,11 +251,6 @@ function animate() {
 		mrrIndex++;
 		newSampleReceived = false;
 	}
-	
-	// SphereMesh positioning (used for debugging)
-	sphereMesh.position.x = document.getElementById("sphere-x").value;
-	sphereMesh.position.y = document.getElementById("sphere-y").value;
-	sphereMesh.position.z = document.getElementById("sphere-z").value;
 	
 	// Cutting tool change if needed
 	if (dataStorage.machineTool.toolRadius[0] != undefined 

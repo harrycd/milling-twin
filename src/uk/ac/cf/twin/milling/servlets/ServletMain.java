@@ -3,11 +3,15 @@ package uk.ac.cf.twin.milling.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 import uk.ac.cf.milling.objects.Billet;
 import uk.ac.cf.milling.objects.Nc;
@@ -43,6 +47,14 @@ public class ServletMain extends HttpServlet {
 			SettingsSingleton instance = SettingsSingleton.getInstance();
 			instance.dbFilePath = dbFolderPath + "\\" + dbFile;
 			System.out.println("selected database: " + instance.dbFilePath);
+			
+			// Load NCs that have both simulator and monitoring data specified
+			List<Nc> ncs = NcUtils
+					.getNcs()
+					.stream()
+					.filter(x -> (  !( x.getMonitoringPath().equals("") || x.getAnalysisPath().equals("")) )  )
+					.collect(Collectors.toList());
+			request.setAttribute("ncs", ncs);
 			request.getRequestDispatcher("machine.jsp").forward(request, response);
 			break;
 		}
@@ -69,25 +81,23 @@ public class ServletMain extends HttpServlet {
 			out.flush();
 			break;
 		}
-//		case "monitoringtest" : {
-//			int ncId = Integer.parseInt(request.getParameter("ncId"));
-//
-//			//Initiate the process to send data to server
-//			//				
-//			//				
-//			//				
-//			response.setContentType("application/json");
-//			// Get the printwriter object from response to write the required json object to the output stream      
-//			PrintWriter out = response.getWriter();
-//			// Assuming your json object is **jsonObject**, perform the following, it will return your json object  
-//			out.print("{ ncId: '" + ncId + "', key2: 'value2' }");
-//			out.flush();
-//			break;
-//		}
 		case "login" : {
+			String dbFile = request.getParameter("db-name");
+			SettingsSingleton instance = SettingsSingleton.getInstance();
+			instance.dbFilePath = dbFolderPath + "\\" + dbFile;
+			System.out.println("selected database: " + instance.dbFilePath);
+			request.getRequestDispatcher("machine.jsp").forward(request, response);
+			break;
+		}
+		case "get-database-list" : {
+			response.setContentType("application/json");
+			PrintWriter out = response.getWriter();
+
 			List<String> dbNames = IoUtils.getFileNames(dbFolderPath, ".db");
-			request.setAttribute("databases", dbNames);
-			request.getRequestDispatcher("select-database.jsp").forward(request, response);
+			
+			
+			out.print("{ \"dbList\" : " + JSONValue.toJSONString(dbNames) + "}");
+			out.flush();
 			break;
 		}
 		case "example" : {break;}
