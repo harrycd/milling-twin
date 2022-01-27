@@ -80,10 +80,16 @@
 		</div>
 
 		<div class="row mt-3">
-			<select id="available-graph-parameters" class="form-select" onchange="changeGraphParameter(this.options[this.selectedIndex].text)">
-				<option selected>..Select Parameter</option>
-			</select>
-			<div id="graphs-wrapper" class="col-sm"></div>
+			<div class="col-md-6">
+				<select id="available-graph-parameters" class="form-select" onchange="changeGraphParameter(this.options[this.selectedIndex].text)">
+					<option selected>..Select Parameter</option>
+				</select>
+			</div>
+			<div class="col-md-3" style="text-align:right">SMA:</div>
+			<div class="col-md-3"><input id="graph-ma" onchange="setMA(this.value);" type=text size="1" value="1"></div>
+			<div>
+				<div id="graphs-wrapper" class="col-sm"></div>
+			</div>
 		</div>
 
 	</div>

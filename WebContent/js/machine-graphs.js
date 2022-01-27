@@ -29,6 +29,10 @@ function setChartTitle(title){
 }
 
 function generateGraph(){
+	// Initialise graph parameters
+	chartData.ma = 1;
+	
+	// Build chart
 	chart = Highcharts.chart('graphs-wrapper', {
 	    chart: {
 	        type: 'line',
@@ -41,8 +45,17 @@ function generateGraph(){
 	                	if(chartData.dataYMachine != undefined){
 	                		let dataMachine = combineArrays(chartData.dataX, chartData.dataYMachine);
 	                		let dataSimulator = combineArrays(chartData.dataX, chartData.dataYSimulator);
-	                		series[0].setData(dataMachine.slice(-chartData.dataPointCount), true, false, true);
-	                		series[1].setData(dataSimulator.slice(-chartData.dataPointCount), true, false, true);
+	                		
+	                		dataMachine = dataMachine.slice(-chartData.dataPointCount);
+	                		dataSimulator = dataSimulator.slice(-chartData.dataPointCount);
+	                		
+	                		if (chartData.ma > 1){
+	                			dataMachine = calculateMA(dataMachine, chartData.ma);
+	                			dataSimulator = calculateMA(dataSimulator, chartData.ma);
+	                		}
+	                		
+	                		series[0].setData(dataMachine, true, false, true);
+	                		series[1].setData(dataSimulator, true, false, true);
 	                	}
 	                }, 1000);
 	            }
@@ -71,15 +84,15 @@ function generateGraph(){
 
 	    tooltip: {
 	        headerFormat: '<b>{series.name}</b><br/>',
-	        pointFormat: '{point.x:%Y-%m-%d %H:%M:%S}<br/>{point.y:.2f}'
+	        pointFormat: '{point.x:%H:%M:%S}<br/>{point.y:.2f}'
 	    },
 
 	    legend: {
-	        enabled: false
+	        enabled: true
 	    },
 
 	    exporting: {
-	        enabled: false
+	        enabled: true
 	    },
 
 	    series: [
@@ -100,4 +113,24 @@ function combineArrays(dataX, dataY){
 		return [x * 1000, dataY[i]];
 	});
 	return dataXY;
+}
+
+function calculateMA(data, ma){
+	const ma_minus_1 = ma-1;
+	const dataLength = data.length;
+	let maData = [];
+	 
+	for (let i = ma_minus_1; i < data.length; i++){
+		let maValue = 0;
+		for (let j = i-ma_minus_1; j < i; j++){
+			maValue += data[j][1];
+		}
+		maData.push([data[i][0], maValue/ma]);
+	}
+	
+	return maData;
+}
+
+function setMA(ma){
+	chartData.ma = ma;
 }
