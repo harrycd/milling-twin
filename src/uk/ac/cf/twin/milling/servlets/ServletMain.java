@@ -22,7 +22,9 @@ import uk.ac.cf.milling.utils.db.NcUtils;
 import uk.ac.cf.milling.utils.webapp.MonitoringUtils;
 
 /**
- * Servlet implementation class TwinMain
+ * Handles all requests and responses of the digital twin.
+ * @author Theocharis Alexopoulos
+ * 
  */
 public class ServletMain extends HttpServlet {
 

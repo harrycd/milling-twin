@@ -13,8 +13,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 /**
+ * Filters the requests to ensure that user is logged in.
  * @author Theocharis Alexopoulos
- * @date 21 Jan 2021
  *
  */
 public class UserLoggedFilter implements Filter {
